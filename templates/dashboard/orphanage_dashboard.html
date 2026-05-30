@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container fade-in">
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 8px;">
+        <div>
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 4px;">Orphanage Dashboard</h2>
+            <p style="color: var(--text); font-size: 13px;">Track your claims and manage pickups.</p>
+        </div>
+        <div style="text-align: right;">
+            <span style="font-size: 12px; color: var(--text-light);">Today</span>
+            <span style="display: block; font-size: 14px; font-weight: 700;">{% now "M d, Y" %}</span>
+        </div>
+    </div>
+
+    {# Stats Row #}
+    <div class="stat-cards-row" style="margin-bottom: 28px;">
+        <div class="stat-card" style="border-left: 4px solid var(--brand-600);">
+            <span class="stat-card-icon">📦</span>
+            <span class="stat-card-number" style="color: var(--primary-dark);">{{ my_orders.count }}</span>
+            <span class="stat-card-label">Orders Placed</span>
+        </div>
+        <div class="stat-card">
+            <p style="color: var(--text); margin: 0 0 8px; font-size: 13px;">Find food donations:</p>
+            <a href="{% url 'food_list' %}" class="btn btn-secondary"
+                style="width: 100%; text-align: center; font-size: 13px;">🔎 Browse Food</a>
+        </div>
+    </div>
+
+    {# Orders Table #}
+    <div class="card" style="padding: 0;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border);">
+            <h3 style="font-size: 1rem; font-weight: 800;">My Orders</h3>
+        </div>
+        {% if my_orders %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Food Item</th>
+                        <th>Donor</th>
+                        <th>Date</th>
+                        <th>Status & Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in my_orders %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ order.food_post.title }}</td>
+                        <td><span style="display: inline-flex; align-items: center; gap: 4px;">🏨 {{ order.food_post.donor.username }}</span></td>
+                        <td style="color: var(--text);">{{ order.claimed_at|date:"M d, Y" }}</td>
+                        <td>
+                            <span
+                                class="badge {% if order.status == 'PENDING' %}badge-pending{% elif order.status == 'COMPLETED' %}badge-completed{% endif %}"
+                                style="margin-right: 6px;">{{ order.status }}</span>
+                            {% if order.status == 'PENDING' %}
+                            <div style="display: inline-flex; align-items: center; gap: 6px; margin-top: 6px;">
+                                <button onclick="showQr('{{ order.id }}', '{{ order.food_post.title }}')"
+                                    class="btn btn-sm">🎫 View Pass</button>
+                                <a href="{% url 'withdraw_order' order.id %}" class="btn btn-outline btn-sm">Cancel</a>
+                            </div>
+                            {% elif order.status == 'COMPLETED' %}
+                            <a href="{% url 'submit_feedback' order.id %}"
+                                style="color: var(--primary); font-size: 13px;">⭐ Rate</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px 0;">
+            <div style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4;">🛒</div>
+            <h4 style="margin-bottom: 6px; font-size: 14px;">No orders yet</h4>
+            <p style="color: var(--text); margin-bottom: 16px; font-size: 13px;">Browse the food list to claim
+                donations.</p>
+            <a href="{% url 'food_list' %}" class="btn btn-secondary" style="font-size: 13px;">Browse Food</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# QR Modal #}
+<div id="qrModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 2000;">
+    <div class="card" style="width: 100%; max-width: 380px; text-align: center; position: relative;">
+        <button onclick="closeQr()"
+            style="position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text);">&times;</button>
+        <h3 style="margin-bottom: 6px; color: var(--primary-dark); font-size: 1.1rem;">Pickup Pass</h3>
+        <p id="qrTitle" style="color: var(--text); margin-bottom: 16px; font-weight: 600; font-size: 13px;"></p>
+        <div
+            style="background: white; padding: 16px; border-radius: 12px; display: inline-block; box-shadow: var(--shadow-sm); margin-bottom: 16px; border: 1px solid var(--border);">
+            <img id="qrImage" src="" alt="QR Code" style="width: 180px; height: 180px; object-fit: contain;">
+        </div>
+        <p style="color: var(--text); font-size: 12px;">Show this QR code to the hotel staff to collect your food.</p>
+    </div>
+</div>
+<script>
+    function showQr(orderId, title) {
+        document.getElementById('qrImage').src = '/orders/qr/' + orderId + '/';
+        document.getElementById('qrTitle').innerText = title;
+        document.getElementById('qrModal').style.display = 'flex';
+    }
+    function closeQr() { document.getElementById('qrModal').style.display = 'none'; }
+    window.onclick = function (e) { if (e.target == document.getElementById('qrModal')) closeQr(); }
+</script>
+{% endblock %}

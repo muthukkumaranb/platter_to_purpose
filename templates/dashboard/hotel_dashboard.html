@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container fade-in">
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 8px;">
+        <div>
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 4px;">Hotel Dashboard</h2>
+            <p style="color: var(--text); font-size: 13px;">Manage your food donations and verify pickups.</p>
+        </div>
+        <div style="text-align: right;">
+            <span style="font-size: 12px; color: var(--text-light);">Today</span>
+            <span style="display: block; font-size: 14px; font-weight: 700;">{% now "M d, Y" %}</span>
+        </div>
+    </div>
+
+    {# Stats Row #}
+    <div class="stat-cards-row" style="margin-bottom: 28px;">
+        <div class="stat-card" style="border-left: 4px solid var(--brand-600);">
+            <span class="stat-card-icon">🍲</span>
+            <span class="stat-card-number" style="color: var(--primary-dark);">{{ my_posts.count }}</span>
+            <span class="stat-card-label">Total Donations</span>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid var(--brand-400);">
+            <span class="stat-card-icon">🤝</span>
+            <span class="stat-card-number" style="color: var(--primary-dark);">0</span>
+            <span class="stat-card-label">Meals Impacted</span>
+        </div>
+        <div class="stat-card">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a href="{% url 'post_food' %}" class="btn" style="font-size: 13px;">➕ Create New Post</a>
+                <a href="{% url 'verify_pickup' %}" class="btn btn-outline" style="font-size: 13px;">🔍 Verify
+                    Pickup</a>
+            </div>
+        </div>
+    </div>
+
+    {# Posts Table #}
+    <div class="card" style="padding: 0;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border);">
+            <h3 style="font-size: 1rem; font-weight: 800;">My Active Posts</h3>
+        </div>
+        {% if my_posts %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Created</th>
+                        <th>Status</th>
+                        <th>Rating</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in my_posts %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ post.title }}</td>
+                        <td style="color: var(--text);">{{ post.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            {% if post.is_claimed %}
+                            <span class="badge badge-completed">Claimed</span>
+                            {% else %}
+                            <span class="badge badge-pending">Active</span>
+                            {% endif %}
+                        </td>
+                        <td style="color: #F4A261;">{{ post.get_rating_stars|default:"—" }}</td>
+                        <td><a href="{% url 'food_detail' post.pk %}"
+                                style="color: var(--primary); font-weight: 600; font-size: 13px;">View →</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px 0;">
+            <div style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4;">🍽️</div>
+            <h4 style="margin-bottom: 6px; font-size: 14px;">No posts yet</h4>
+            <p style="color: var(--text); margin-bottom: 16px; font-size: 13px;">Start sharing your surplus food.</p>
+            <a href="{% url 'post_food' %}" class="btn" style="font-size: 13px;">Post Food Now</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

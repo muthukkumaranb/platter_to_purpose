@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body
+    style="margin: 0; padding: 0; background-color: #f5f6fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <!-- Email Container -->
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f6fa;">
+        <tr>
+            <td align="center" style="padding: 32px 16px;">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0"
+                    style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td
+                            style="background: linear-gradient(135deg, #6c5ce7, #a29bfe); padding: 40px 32px; text-align: center;">
+                            <h1 style="color: #ffffff; font-size: 28px; margin: 0 0 8px;">
+                                🍽️ Platter to Purpose
+                            </h1>
+                            <p style="color: rgba(255,255,255,0.85); font-size: 16px; margin: 0;">
+                                Your Monthly Impact Report — {{ month_name }}
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Greeting -->
+                    <tr>
+                        <td style="padding: 32px 32px 16px;">
+                            <p style="font-size: 18px; color: #2d3436; margin: 0;">
+                                Hey <strong>{{ user.username }}</strong>! 👋
+                            </p>
+                        </td>
+                    </tr>
+
+                    {% if role == "hotel" %}
+                    <!-- Hotel Content -->
+                    <tr>
+                        <td style="padding: 0 32px;">
+                            <p style="font-size: 15px; color: #636e72; line-height: 1.6;">
+                                Last month, your generosity made a real difference. Here's your impact:
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 16px 32px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td width="50%" style="padding: 12px; text-align: center;">
+                                        <div style="background: #f0f0ff; border-radius: 12px; padding: 24px;">
+                                            <div style="font-size: 36px; font-weight: 700; color: #6c5ce7;">{{ meals }}
+                                            </div>
+                                            <div style="font-size: 14px; color: #636e72; margin-top: 4px;">Meals Saved
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" style="padding: 12px; text-align: center;">
+                                        <div style="background: #f0fff4; border-radius: 12px; padding: 24px;">
+                                            <div style="font-size: 36px; font-weight: 700; color: #00b894;">{{ co2 }} kg
+                                            </div>
+                                            <div style="font-size: 14px; color: #636e72; margin-top: 4px;">CO₂ Prevented
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 32px 24px;">
+                            <p style="font-size: 15px; color: #636e72; line-height: 1.6; text-align: center;">
+                                {% if meals > 0 %}
+                                🎉 Amazing work! Every meal you save makes a difference.
+                                {% else %}
+                                This month was quiet, but every contribution counts.
+                                Post your surplus food and start making impact! 🚀
+                                {% endif %}
+                            </p>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <!-- Orphanage Content -->
+                    <tr>
+                        <td style="padding: 0 32px;">
+                            <p style="font-size: 15px; color: #636e72; line-height: 1.6;">
+                                Last month, the community came together for your organization:
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 16px 32px; text-align: center;">
+                            <div
+                                style="background: #f0f0ff; border-radius: 12px; padding: 32px; display: inline-block; width: 80%;">
+                                <div style="font-size: 48px; font-weight: 700; color: #6c5ce7;">{{ meals }}</div>
+                                <div style="font-size: 16px; color: #636e72; margin-top: 4px;">Meals Received</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 32px 24px;">
+                            <p style="font-size: 15px; color: #636e72; line-height: 1.6; text-align: center;">
+                                {% if meals > 0 %}
+                                💜 Your community received nourishment thanks to our donors.
+                                {% else %}
+                                Browse available food posts to find donations near you! 🍲
+                                {% endif %}
+                            </p>
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    <!-- CTA Button -->
+                    <tr>
+                        <td style="padding: 8px 32px 32px; text-align: center;">
+                            <a href="#"
+                                style="display: inline-block; background: #6c5ce7; color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 30px; font-size: 15px; font-weight: 600;">
+                                View Your Full Impact Dashboard →
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f5f6fa; padding: 24px 32px; text-align: center;">
+                            <p style="font-size: 13px; color: #b2bec3; margin: 0;">
+                                Platter to Purpose — Reducing food waste, one meal at a time. 🌱
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>

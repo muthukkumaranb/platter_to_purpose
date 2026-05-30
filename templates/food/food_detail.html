@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load food_filters %}
+<div class="container fade-in" style="max-width: 1000px;">
+    {% if food %}
+    {% else %}
+    {% endif %}
+    <div style="margin-bottom: 16px;">
+        <a href="{% url 'food_list' %}" style="color: var(--primary); font-size: 13px;">← Back to all listings</a>
+    </div>
+
+    {% if food.is_in_priority_window %}
+    <div class="priority-banner" data-priority-ends="{{ food.priority_window_ends|date:'c' }}">
+        <div class="priority-banner-text">
+            <span>🟢</span>
+            <span><strong>Priority Window</strong> — Reserved for orphanages for <span
+                    class="countdown-text">--:--</span></span>
+        </div>
+        <span class="priority-timer"><span class="countdown-text">--:--</span></span>
+    </div>
+    {% endif %}
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="display: flex; flex-wrap: wrap;">
+            {# Image #}
+            <div style="flex: 1; min-width: 280px; border-right: 1px solid var(--border);">
+                {% if food.image %}
+                <img src="{{ food.image.url }}" alt="{{ food.title }}"
+                    style="width: 100%; height: 100%; min-height: 320px; object-fit: cover;">
+                {% else %}
+                <div class="food-bg-2"
+                    style="width: 100%; min-height: 320px; display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 5rem;">🍲</span>
+                </div>
+                {% endif %}
+            </div>
+            {# Details #}
+            <div style="flex: 1.3; min-width: 280px; padding: 28px;">
+                <h1 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; color: var(--dark);">{{ food.title
+                    }}</h1>
+
+                <div
+                    style="font-size: 13px; color: var(--text); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                    by <a href="#" style="color: var(--primary);">{{ food.donor.username }}</a>
+                    <span style="margin-left: 8px; color: #F4A261;" title="{{ food.donor.average_rating }} / 5">{{
+                        food.donor.average_rating|to_stars }}</span>
+                </div>
+
+                <div
+                    style="background: var(--brand-100); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <span
+                            style="display: block; font-size: 11px; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Quantity</span>
+                        <span style="font-size: 1rem; font-weight: 700; color: var(--dark);">{{ food.quantity }}
+                            Servings</span>
+                    </div>
+                    <div>
+                        <span
+                            style="display: block; font-size: 11px; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Expires</span>
+                        <span style="font-size: 1rem; font-weight: 700; color: var(--danger);">{{
+                            food.expiry_time|date:"g:i A" }}</span>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <span
+                            style="display: block; font-size: 11px; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Pickup
+                            Location</span>
+                        <span style="font-size: 13px; color: var(--dark);">📍 {{ food.location }}</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <h3
+                        style="font-size: 13px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.02em;">
+                        About</h3>
+                    <p style="color: var(--text); line-height: 1.6; font-size: 13px;">{{ food.description }}</p>
+                </div>
+
+                {% if food.is_claimed %}
+                <button class="btn btn-outline" disabled style="width: 100%; cursor: not-allowed; opacity: 0.6;">Already
+                    Claimed</button>
+                {% elif user.is_authenticated %}
+                {% if food.is_in_priority_window %}
+                {% if is_orphanage %}
+                <form action="{% url 'claim_food' food.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 14px;">🛒 Claim Now
+                        (Priority)</button>
+                </form>
+                {% elif is_hotel %}
+                <div class="claim-locked-box">
+                    <span>🔒 Reserved for orphanages</span>
+                    <span class="claim-locked-timer countdown-text">--:--</span>
+                </div>
+                {% endif %}
+                {% else %}
+                {% if is_orphanage or is_hotel %}
+                <form action="{% url 'claim_food' food.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 14px;">🛒 Claim This
+                        Donation</button>
+                </form>
+                {% endif %}
+                {% endif %}
+                {% else %}
+                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-secondary"
+                    style="width: 100%; text-align: center; padding: 12px; font-size: 14px;">
+                    Sign in to Claim
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        function updateCountdowns() {
+            var now = Date.now();
+            document.querySelectorAll('[data-priority-ends]').forEach(function (el) {
+                var endsAt = new Date(el.getAttribute('data-priority-ends')).getTime();
+                var diff = endsAt - now;
+                if (diff <= 0) { el.removeAttribute('data-priority-ends'); return; }
+                var totalSeconds = Math.ceil(diff / 1000);
+                var m = Math.floor(totalSeconds / 60), s = totalSeconds % 60;
+                var display = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                el.querySelectorAll('.countdown-text').forEach(function (ct) { ct.textContent = display; });
+                document.querySelectorAll('.claim-locked-timer').forEach(function (ct) { ct.textContent = display; });
+            });
+        }
+        updateCountdowns();
+        setInterval(updateCountdowns, 1000);
+    })();
+</script>
+{% endblock %}

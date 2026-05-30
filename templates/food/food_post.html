@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 560px; margin: 32px auto;">
+    <div class="card">
+        <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;">Share Surplus Food</h2>
+        <p style="color: var(--text); font-size: 13px; margin-bottom: 20px;">List your food donation for nearby
+            orphanages.</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: var(--text); font-size: 12px;">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <div style="color: var(--danger); font-size: 12px; margin-top: 3px;">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn" style="width: 100%; padding: 10px; font-size: 14px; margin-top: 8px;">
+                Post Listing
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

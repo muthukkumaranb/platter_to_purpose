@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; text-align: center; margin-top: 40px;">
+    <div class="card" style="padding: 40px;">
+        <h2 style="margin-bottom: 24px;">Verify Pickup</h2>
+
+        {% if error %}
+        <div style="background: #fee; color: red; padding: 12px; border-radius: 8px; margin-bottom: 24px;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <p style="margin-bottom: 24px;">
+            Scan the QR code shown by the Orphanage or enter the code manually.
+        </p>
+
+        <!-- Manual Entry Form -->
+        <form method="post" id="verify-form" style="margin-bottom: 32px;">
+            {% csrf_token %}
+            <div style="margin-bottom: 16px;">
+                <input type="text" name="token" placeholder="Enter Pickup Token (UUID)" required
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">Verify & Complete Order</button>
+        </form>
+
+        <hr style="margin: 30px 0;">
+
+        <!-- QR Scanner Section -->
+        <h3>Scan QR Code</h3>
+        <div id="reader" style="width: 100%; min-height: 300px; background: #eee; margin-top: 16px;"></div>
+
+        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+        <script>
+            function onScanSuccess(decodedText, decodedResult) {
+                // Handle the scanned code as you like, for example:
+                console.log(`Code matched = ${decodedText}`, decodedResult);
+
+                // Set the value in the form and submit
+                document.querySelector('input[name="token"]').value = decodedText;
+                document.getElementById('verify-form').submit();
+            }
+
+            function onScanFailure(error) {
+                // handle scan failure, usually better to ignore and keep scanning.
+                // console.warn(`Code scan error = ${error}`);
+            }
+
+            let html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                /* verbose= */ false);
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        </script>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{# ═══ Hero Banner ═══ #}
+<section class="hero animated-bg"
+    style="position: relative; overflow: hidden; min-height: 85vh; display: flex; align-items: center;">
+    <!-- Decorative Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="container" style="position: relative; z-index: 2; width: 100%;">
+        <div class="hero-grid"
+            style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center;">
+
+            {# Left Column: Text #}
+            <div class="hero-text">
+                <div class="animate-slide-up"
+                    style="display: inline-block; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); padding: 6px 16px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.3); margin-bottom: 24px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 0.5px;">🚀
+                        Revolutionizing Food Donation</span>
+                </div>
+
+                <h1 class="animate-slide-up delay-100"
+                    style="font-size: 4.5rem; line-height: 1.1; margin-bottom: 24px; color: #fff; font-weight: 800; text-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    Bridge the Gap Between <span
+                        style="color: var(--brand-200); position: relative; display: inline-block; text-shadow: 0 4px 20px rgba(0,0,0,0.2);">Surplus</span>
+                    & <span
+                        style="color: var(--brand-900); background: var(--brand-300); padding: 0 10px; border-radius: 8px; transform: rotate(-2deg); display: inline-block;">Scarcity</span>
+                </h1>
+
+                <p class="animate-slide-up delay-200"
+                    style="font-size: 1.25rem; color: rgba(255,255,255,0.95); font-weight: 500; margin-bottom: 40px; max-width: 600px; line-height: 1.6;">
+                    Join our mission to eliminate food waste. Hotels donate surplus food to orphanages in need —
+                    creating a sustainable cycle of giving.
+                </p>
+
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;" class="animate-slide-up delay-300">
+                    <a href="{% url 'food_list' %}" class="btn"
+                        style="background: #fff; color: var(--brand-800); padding: 16px 40px; font-size: 16px; font-weight: 700; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                        Browse Donations
+                    </a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'signup' %}" class="btn btn-outline"
+                        style="padding: 16px 40px; font-size: 16px; color: #fff; border: 2px solid rgba(255,255,255,0.5); background: transparent; border-radius: 50px;">
+                        Join the Mission
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Right Column: Visuals #}
+            <div class="hero-visuals floating-anim"
+                style="position: relative; height: 500px; display: flex; align-items: center; justify-content: center;">
+
+                <!-- Central Element -->
+                <div class="glass-card"
+                    style="width: 280px; padding: 30px; border-radius: 24px; position: relative; z-index: 2; transform: rotate(-3deg); background: rgba(255,255,255,0.85);">
+                    <div style="font-size: 60px; margin-bottom: 20px; text-align: center;">🍲</div>
+                    <h3 style="font-size: 20px; font-weight: 800; color: var(--brand-900); margin-bottom: 8px;">Fresh
+                        Food</h3>
+                    <p style="font-size: 14px; color: var(--text); line-height: 1.5;">Hotels post surplus meals
+                        instantly.</p>
+                    <div style="margin-top: 20px; display: flex; align-items: center; gap: 10px;">
+                        <span
+                            style="font-size: 12px; font-weight: 700; color: var(--success); background: rgba(45, 106, 79, 0.1); padding: 4px 10px; border-radius: 20px;">Available
+                            Now</span>
+                    </div>
+                </div>
+
+                <!-- Floating Stats Card 1 -->
+                <div class="glass-card delay-200"
+                    style="position: absolute; top: 10%; right: 0; padding: 20px; border-radius: 20px; width: 180px; animation: float 5s ease-in-out infinite alternate;">
+                    <div style="font-size: 32px; font-weight: 800; color: var(--brand-600);">500+</div>
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text);">Meals Saved</div>
+                </div>
+
+                <!-- Floating Stats Card 2 -->
+                <div class="glass-card delay-300"
+                    style="position: absolute; bottom: 10%; left: -20px; padding: 20px; border-radius: 20px; width: 180px; animation: float 6s ease-in-out infinite alternate-reverse;">
+                    <div style="font-size: 32px; font-weight: 800; color: var(--brand-600);">50+</div>
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text);">Partners</div>
+                </div>
+
+                <!-- Decorative Icon -->
+                <div
+                    style="position: absolute; top: -20px; left: 20px; font-size: 40px; animation: popIn 1s ease-out forwards;">
+                    ✨</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ═══ How It Works ═══ #}
+<section class="container" style="padding: 60px 20px;">
+    <h2 class="scroll-hidden" style="text-align: center; margin-bottom: 40px; font-size: 1.8rem; font-weight: 800;">How
+        It Works</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+        <!-- Step 1 -->
+        <div class="glass-card scroll-hidden delay-100"
+            style="text-align: center; border-top: 4px solid var(--brand-500); padding: 32px; border-radius: 16px;">
+            <div
+                style="font-size: 2.5rem; margin-bottom: 16px; background: rgba(255, 107, 53, 0.1); width: 72px; height: 72px; line-height: 72px; border-radius: 50%; margin: 0 auto 20px; transition: transform 0.3s;">
+                🏨</div>
+            <h3 style="margin-bottom: 12px; font-size: 1.1rem; font-weight: 700;">1. Hotels Post Surplus</h3>
+            <p style="color: var(--text); font-size: 14px; line-height: 1.6;">Hotels list available food with quantity,
+                type, and pickup
+                window details.</p>
+        </div>
+        <!-- Step 2 -->
+        <div class="glass-card scroll-hidden delay-200"
+            style="text-align: center; border-top: 4px solid var(--brand-500); padding: 32px; border-radius: 16px;">
+            <div
+                style="font-size: 2.5rem; margin-bottom: 16px; background: rgba(255, 107, 53, 0.1); width: 72px; height: 72px; line-height: 72px; border-radius: 50%; margin: 0 auto 20px; transition: transform 0.3s;">
+                📱</div>
+            <h3 style="margin-bottom: 12px; font-size: 1.1rem; font-weight: 700;">2. Orphanages Browse</h3>
+            <p style="color: var(--text); font-size: 14px; line-height: 1.6;">Care homes view real-time listings and
+                reserve what they
+                need instantly.</p>
+        </div>
+        <!-- Step 3 -->
+        <div class="glass-card scroll-hidden delay-300"
+            style="text-align: center; border-top: 4px solid var(--brand-500); padding: 32px; border-radius: 16px;">
+            <div
+                style="font-size: 2.5rem; margin-bottom: 16px; background: rgba(255, 107, 53, 0.1); width: 72px; height: 72px; line-height: 72px; border-radius: 50%; margin: 0 auto 20px; transition: transform 0.3s;">
+                🚚</div>
+            <h3 style="margin-bottom: 12px; font-size: 1.1rem; font-weight: 700;">3. Claim & Collect</h3>
+            <p style="color: var(--text); font-size: 14px; line-height: 1.6;">Orphanages secure the claim and pick up
+                freshly prepared
+                food.</p>
+        </div>
+    </div>
+    </div>
+</section>
+
+{# ═══ Why Choose Us ═══ #}
+<section class="container" style="padding: 40px 20px;">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h2 class="scroll-hidden" style="font-size: 1.8rem; font-weight: 800; margin-bottom: 12px;">Why Choose Platter
+            to Purpose?</h2>
+        <p class="scroll-hidden delay-100" style="color: var(--text); max-width: 600px; margin: 0 auto;">We make food
+            donation simple, transparent, and impactful for everyone involved.</p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item scroll-hidden delay-100">
+            <div class="detail-icon">⚡</div>
+            <div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">Real-Time Updates</h3>
+                <p style="font-size: 13px; color: var(--text);">Instant notifications when food is posted or claimed,
+                    ensuring nothing goes to waste.</p>
+            </div>
+        </div>
+        <div class="detail-item scroll-hidden delay-200">
+            <div class="detail-icon">🛡️</div>
+            <div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">Verified Partners</h3>
+                <p style="font-size: 13px; color: var(--text);">All hotels and orphanages are verified to ensure safety
+                    and trust in the community.</p>
+            </div>
+        </div>
+        <div class="detail-item scroll-hidden delay-300">
+            <div class="detail-icon">📊</div>
+            <div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">Impact Tracking</h3>
+                <p style="font-size: 13px; color: var(--text);">See exactly how many meals you've saved and lives you've
+                    touched with our dashboard.</p>
+            </div>
+        </div>
+        <div class="detail-item scroll-hidden delay-400">
+            <div class="detail-icon">🤝</div>
+            <div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">Easy Coordination</h3>
+                <p style="font-size: 13px; color: var(--text);">Seamless pickup scheduling and integrated maps for
+                    hassle-free logistics.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ═══ Testimonials ═══ #}
+<section class="container" style="padding: 60px 20px;">
+    <h2 class="scroll-hidden" style="text-align: center; margin-bottom: 40px; font-size: 1.8rem; font-weight: 800;">
+        Community Stories</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+        <div class="testimonial-card scroll-hidden delay-100">
+            <p class="testimonial-quote">"Platter to Purpose changed everything for us. We used to struggle with surplus
+                food disposal, now we know it's feeding children who need it most."</p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">JD</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 14px;">John Doe</div>
+                    <div style="font-size: 12px; color: var(--text-light);">Manager, Grand Hotel</div>
+                </div>
+            </div>
+            <div
+                style="position: absolute; top: 20px; right: 20px; font-size: 40px; opacity: 0.1; font-family: sans-serif; color: var(--brand-500);">
+                "</div>
+        </div>
+        <div class="testimonial-card scroll-hidden delay-200">
+            <p class="testimonial-quote">"The quality of food is amazing, and the process is so dignified. It's not just
+                food; it's love and care for our children."</p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">SM</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 14px;">Sarah Miller</div>
+                    <div style="font-size: 12px; color: var(--text-light);">Warden, Sunshine Care</div>
+                </div>
+            </div>
+            <div
+                style="position: absolute; top: 20px; right: 20px; font-size: 40px; opacity: 0.1; font-family: sans-serif; color: var(--brand-500);">
+                "</div>
+        </div>
+    </div>
+</section>
+
+{# ═══ CTA Section ═══ #}
+<section class="container" style="padding-bottom: 60px;">
+    <div class="cta-section scroll-hidden">
+        <div class="blob blob-3" style="top: -50px; right: -50px; opacity: 0.2;"></div>
+        <div class="blob blob-1" style="bottom: -50px; left: -50px; opacity: 0.2;"></div>
+
+        <h2 style="position: relative; z-index: 1;">Ready to make a difference?</h2>
+        <p style="position: relative; z-index: 1;">Join hundreds of hotels and orphanages building a hunger-free world
+            together.</p>
+
+        <div style="position: relative; z-index: 1;">
+            {% if not user.is_authenticated %}
+            <a href="{% url 'signup' %}" class="btn"
+                style="background: white; color: var(--brand-800); padding: 14px 32px; font-size: 16px;">Get Started
+                Now</a>
+            {% else %}
+            <a href="{% url 'food_list' %}" class="btn"
+                style="background: white; color: var(--brand-800); padding: 14px 32px; font-size: 16px;">Browse
+                Donations</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+    // Scroll Animation Observer
+    document.addEventListener('DOMContentLoaded', function () {
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('scroll-visible');
+                    observer.unobserve(entry.target); // Only animate once
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-hidden').forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications — Platter to Purpose{% endblock %}
+
+{% block content %}
+<div class="notification-page">
+    <div class="notification-header">
+        <h1>🔔 Notifications</h1>
+        <div class="notification-actions">
+            {% if unread_count > 0 %}
+            <span class="badge badge-pending" style="font-size: 0.85rem; padding: 6px 16px;">
+                {{ unread_count }} unread
+            </span>
+            <form action="{% url 'mark_all_read' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline" style="padding: 8px 20px; font-size: 0.85rem;">
+                    ✓ Mark all as read
+                </button>
+            </form>
+            {% else %}
+            <span style="color: var(--gray); font-size: 0.9rem;">All caught up! 🎉</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if notifications %}
+    <div class="notification-list">
+        {% for notif in notifications %}
+        <div class="card notification-card {% if not notif.is_read %}notification-unread{% endif %}"
+            style="margin-bottom: 16px; padding: 20px 24px;">
+            <div class="notification-card-inner">
+                <div class="notification-icon">
+                    {% if notif.notification_type == 'FOOD_POSTED' %}🍲
+                    {% elif notif.notification_type == 'FOOD_CLAIMED' %}✅
+                    {% elif notif.notification_type == 'PICKUP_VERIFIED' %}🎉
+                    {% elif notif.notification_type == 'FOOD_EXPIRING' %}⏰
+                    {% endif %}
+                </div>
+                <div class="notification-content">
+                    <h3 class="notification-title">{{ notif.title }}</h3>
+                    <p class="notification-message">{{ notif.message }}</p>
+                    <div class="notification-meta">
+                        <span class="notification-time">{{ notif.created_at|timesince }} ago</span>
+                        <span
+                            class="badge {% if notif.notification_type == 'FOOD_EXPIRING' %}badge-expiry{% elif notif.notification_type == 'PICKUP_VERIFIED' %}badge-completed{% else %}badge-hotel{% endif %}"
+                            style="font-size: 0.7rem;">
+                            {{ notif.get_notification_type_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="notification-action">
+                    {% if not notif.is_read %}
+                    <form action="{% url 'mark_as_read' notif.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-mark-read" title="Mark as read">
+                            ✓
+                        </button>
+                    </form>
+                    {% else %}
+                    <span class="notification-read-check" title="Read">✓</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 60px 20px;">
+        <p style="font-size: 3rem; margin-bottom: 16px;">📭</p>
+        <h3 style="color: var(--gray);">No notifications yet</h3>
+        <p style="color: var(--gray); margin-top: 8px;">
+            You'll be notified when food is posted, claimed, or picked up.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Donations — Platter to Purpose{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    {# ── Tabs ── #}
+    <div class="tab-nav">
+        <a href="{% url 'food_list' %}" class="active">Available Now</a>
+        <a href="{% url 'food_list' %}?filter=priority">Priority Window <span class="tab-badge">{{ priority_count|default:"" }}</span></a>
+        <a href="{% url 'food_list' %}?filter=claimed">Claimed</a>
+        <a href="{% url 'food_list' %}?filter=expired">Expired</a>
+    </div>
+
+    {# ── Dashboard Layout: Sidebar + Main ── #}
+    <div class="dashboard-layout">
+
+        {# ── LEFT SIDEBAR ── #}
+        <aside class="sidebar">
+            {# Filters #}
+            <div class="sidebar-section">
+                <div class="sidebar-title">Filters</div>
+                <form id="filter-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="filter-q">Search</label>
+                        <input type="text" id="filter-q" name="q" placeholder="e.g. biryani, breakfast..."
+                            value="{{ current_query }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-location">Location</label>
+                        <input type="text" id="filter-location" name="location" placeholder="Area or city"
+                            value="{{ current_location }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-qty">Min. Servings</label>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <input type="number" id="filter-qty" name="min_qty" placeholder="e.g. 20" min="1"
+                                value="{{ current_min_qty }}" style="flex: 1;">
+                            <span style="color: var(--text-light); font-size: 12px;">to</span>
+                            <input type="text" placeholder="Any" disabled style="flex: 1; background: #F5F5F5;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-sort">Sort By</label>
+                        <select id="filter-sort" name="sort">
+                            <option value="newest" {% if sort_newest %}selected{% endif %}>Newest First</option>
+                            <option value="expiry" {% if sort_expiry %}selected{% endif %}>Expiring Soonest</option>
+                            <option value="quantity" {% if sort_quantity %}selected{% endif %}>Largest Quantity</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn" onclick="applyFilters()" style="width: 100%; margin-bottom: 8px;">
+                        Apply Filters
+                    </button>
+                    <button type="button"
+                        style="width: 100%; background: none; border: none; color: var(--text); font-size: 12px; cursor: pointer; font-family: inherit; padding: 6px;"
+                        onclick="clearFilters()">
+                        Clear All
+                    </button>
+                </form>
+            </div>
+
+            {# Impact Stats Card #}
+            {% if user.is_authenticated %}
+            <div class="impact-sidebar">
+                <div class="impact-sidebar-title">Your Impact</div>
+                <div class="impact-sidebar-item">
+                    <span class="impact-sidebar-label">Meals Received</span>
+                    <span class="impact-sidebar-value">{{ user_meals|default:"0" }}</span>
+                </div>
+                <div class="impact-sidebar-item">
+                    <span class="impact-sidebar-label">CO₂ Saved</span>
+                    <span class="impact-sidebar-value">{{ user_co2|default:"0" }}</span>
+                </div>
+                <div class="impact-sidebar-item">
+                    <span class="impact-sidebar-label">Pickups Completed</span>
+                    <span class="impact-sidebar-value">{{ user_pickups|default:"0" }}</span>
+                </div>
+            </div>
+            {% endif %}
+        </aside>
+
+        {# ── MAIN CONTENT ── #}
+        <div>
+            {# Page header row #}
+            <div
+                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 8px;">
+                <div>
+                    <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 4px;">Available Donations</h1>
+                    <p style="color: var(--text); font-size: 13px;">
+                        {% if user.is_authenticated %}Logged in as {{ user.username }}{% endif %}
+                        {% if is_orphanage %} · Priority access active{% endif %}
+                    </p>
+                </div>
+                {% if is_hotel %}
+                <a href="{% url 'post_food' %}" class="btn" style="display: flex; align-items: center; gap: 6px;">
+                    + Post a Need
+                </a>
+                {% endif %}
+            </div>
+
+            {# Stat Counter Cards (row of 4) #}
+            <div class="stat-cards-row">
+                <div class="stat-card">
+                    <span class="stat-card-icon">📦</span>
+                    <span class="stat-card-number">{{ total_count|default:"0" }}</span>
+                    <span class="stat-card-label">Available Now</span>
+                    <span class="stat-card-sub">↑ {{ new_today|default:"0" }} added today</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card-icon">🏷️</span>
+                    <span class="stat-card-number">{{ priority_count|default:"0" }}</span>
+                    <span class="stat-card-label">In Priority Window</span>
+                    <span class="stat-card-sub">→ Exclusive to you</span>
+                </div>
+                <div class="stat-card stat-card-danger">
+                    <span class="stat-card-icon">🔴</span>
+                    <span class="stat-card-number">{{ expiring_count|default:"0" }}</span>
+                    <span class="stat-card-label">Expiring Soon</span>
+                    <span class="stat-card-sub">Within 2 hours</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card-icon">✅</span>
+                    <span class="stat-card-number">{{ user_pickups|default:"0" }}</span>
+                    <span class="stat-card-label">Your Total Pickups</span>
+                    <span class="stat-card-sub">↑ {{ recent_pickups|default:"0" }} this week</span>
+                </div>
+            </div>
+
+            {# Priority Banner #}
+            {% if priority_count %}
+            <div class="priority-banner">
+                <div class="priority-banner-text">
+                    <span>🟢</span>
+                    <span><strong>Priority Window Active</strong> — {{ priority_count }} donations are exclusively
+                        available to orphanages right now. Hotels can claim after the timer expires.</span>
+                </div>
+                {% if priority_window_ends %}
+                <span class="priority-timer" data-priority-ends="{{ priority_window_ends|date:'c' }}">
+                    <span class="countdown-text">--:--</span>
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {# Results #}
+            <div id="food-results">
+                {% include 'food/food_list_partial_v2.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function sortBy(type) {
+        document.getElementById('filter-sort').value = type;
+        // Visual update for buttons (if they exist in the replaced partial)
+        // Since buttons are replaced by AJAX, we rely on the re-render state or just trigger filter
+        document.querySelectorAll('.sort-btn').forEach(function (b) { b.classList.remove('active'); });
+        // event.target might be lost if we don't pass it, but simpler:
+        applyFilters();
+    }
+
+    function applyFilters() {
+        var params = new URLSearchParams();
+        var q = document.getElementById('filter-q').value.trim();
+        var loc = document.getElementById('filter-location').value.trim();
+        var minQty = document.getElementById('filter-qty').value.trim();
+        var sort = document.getElementById('filter-sort').value;
+        if (q) params.set('q', q);
+        if (loc) params.set('location', loc);
+        if (minQty) params.set('min_qty', minQty);
+        if (sort && sort !== 'newest') params.set('sort', sort);
+        var url = '{{ request.path }}' + (params.toString() ? '?' + params.toString() : '');
+        history.replaceState(null, '', url);
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.text(); })
+            .then(function (html) { document.getElementById('food-results').innerHTML = html; })
+            .catch(function (err) { console.error('Filter error:', err); });
+    }
+
+    function clearFilters() {
+        document.getElementById('filter-q').value = '';
+        document.getElementById('filter-location').value = '';
+        document.getElementById('filter-qty').value = '';
+        document.getElementById('filter-sort').value = 'newest';
+        applyFilters();
+    }
+
+    document.querySelectorAll('#filter-form input').forEach(function (input) {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); applyFilters(); }
+        });
+    });
+    document.getElementById('filter-sort').addEventListener('change', applyFilters);
+</script>
+
+{# Countdown Timer #}
+<script>
+    (function () {
+        function updateCountdowns() {
+            var now = Date.now();
+            document.querySelectorAll('[data-priority-ends]').forEach(function (el) {
+                var endsAt = new Date(el.getAttribute('data-priority-ends')).getTime();
+                var diff = endsAt - now;
+                if (diff <= 0) {
+                    el.querySelectorAll('.countdown-text').forEach(function (ct) { ct.textContent = '00:00'; });
+                    el.removeAttribute('data-priority-ends');
+                    return;
+                }
+                var totalSeconds = Math.ceil(diff / 1000);
+                var minutes = Math.floor(totalSeconds / 60);
+                var seconds = totalSeconds % 60;
+                var display = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+                el.querySelectorAll('.countdown-text').forEach(function (ct) { ct.textContent = display; });
+            });
+        }
+        updateCountdowns();
+        setInterval(updateCountdowns, 1000);
+    })();
+</script>
+{% endblock %}

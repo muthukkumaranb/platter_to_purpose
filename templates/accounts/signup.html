@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="split-screen">
+    <div class="split-left">
+        <div style="margin-bottom: 1.5rem;">
+            <img src="{% static 'images/img1.png' %}" alt="Logo"
+                style="height: 64px; background: white; padding: 8px; border-radius: 12px;">
+        </div>
+        <h2>Be the Change.</h2>
+        <p>Join 500+ donors and care homes bridging the gap between surplus and scarcity.</p>
+        <ul class="feature-list">
+            <li>Save Surplus Food</li>
+            <li>Feed Hungry Lives</li>
+            <li>Track Your Impact</li>
+        </ul>
+    </div>
+    <div class="split-right">
+        <h2 style="margin-bottom: 24px; font-size: 1.4rem; font-weight: 800;">Create Account</h2>
+        <form method="post">
+            {% csrf_token %}
+            <label style="margin-bottom: 8px; display: block; font-weight: 700; font-size: 13px;">I am a...</label>
+            <div class="role-selection">
+                <label class="role-option">
+                    <input type="radio" name="role" value="HOTEL" checked>
+                    <div class="role-card">
+                        <span class="role-icon">🏨</span>
+                        <span class="role-label">Hotel / Donor</span>
+                    </div>
+                </label>
+                <label class="role-option">
+                    <input type="radio" name="role" value="ORPHANAGE">
+                    <div class="role-card">
+                        <span class="role-icon">🏠</span>
+                        <span class="role-label">Orphanage</span>
+                    </div>
+                </label>
+            </div>
+            {% for field in form %}
+            {% if field.name != 'role' %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: var(--text); font-size: 11px;">{{ field.help_text|safe }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <div style="color: var(--danger); font-size: 12px;">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endfor %}
+            <button type="submit" class="btn"
+                style="width: 100%; padding: 12px; font-size: 14px; margin-top: 8px;">Create Account</button>
+            <p style="text-align: center; margin-top: 20px; color: var(--text); font-size: 13px;">
+                Already have an account? <a href="{% url 'login' %}" style="font-weight: 600;">Sign In</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}

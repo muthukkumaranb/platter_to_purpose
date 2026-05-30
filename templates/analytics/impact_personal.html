@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}My Impact — Platter to Purpose{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+
+    {# ─── Page Header ──────────────────────────────────────────── #}
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 12px;">📊 My Impact</h1>
+        <p style="color: var(--gray); font-size: 1.1rem;">
+            Hello, <strong>{{ user.username }}</strong>! Here's your contribution to the cause.
+        </p>
+    </div>
+
+    {% if role == "hotel" %}
+    {# ═══════════════════════════════════════════════════════════════
+    HOTEL / DONOR VIEW
+    ═══════════════════════════════════════════════════════════════ #}
+
+    {# ── Stats Cards ── #}
+    <div class="impact-hero-grid">
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">🍽️</div>
+            <div class="impact-hero-number" data-target="{{ total_meals }}">0</div>
+            <div class="impact-hero-label">Meals Donated</div>
+        </div>
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">📦</div>
+            <div class="impact-hero-number" data-target="{{ completed_count }}">0</div>
+            <div class="impact-hero-label">Completed Donations</div>
+        </div>
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">📈</div>
+            <div class="impact-hero-number" data-target="{{ completion_pct }}">0</div>
+            <div class="impact-hero-label">% Completion Rate</div>
+        </div>
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">♻️</div>
+            <div class="impact-hero-number" data-target="{{ co2_prevented }}">0</div>
+            <div class="impact-hero-label">kg CO₂ Prevented</div>
+        </div>
+    </div>
+
+    {# ── Average Rating ── #}
+    {% if avg_rating > 0 %}
+    <div class="card" style="padding: 24px; text-align: center; margin-top: 24px;">
+        <h3 style="margin-bottom: 8px;">⭐ Average Rating from Recipients</h3>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary);">
+            {{ avg_rating }} / 5
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Badge Showcase ── #}
+    <div class="card" style="padding: 28px; margin-top: 24px;">
+        <h3 style="margin-bottom: 20px; font-size: 1.2rem;">🏅 Milestone Badges</h3>
+        <div class="badge-grid">
+            {% for badge in badges %}
+            <div class="badge-card {% if badge.earned %}badge-earned{% else %}badge-locked{% endif %}">
+                <div class="badge-emoji">{{ badge.emoji }}</div>
+                <div class="badge-label">{{ badge.label }}</div>
+                <div class="badge-desc">{{ badge.description }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {# Next badge progress #}
+        {% if next_badge %}
+        <div class="next-badge-progress" style="margin-top: 24px;">
+            <p style="margin-bottom: 8px; font-size: 0.9rem; color: var(--gray);">
+                Next: {{ next_badge.badge.emoji }} {{ next_badge.badge.label }}
+                — <strong>{{ next_badge.meals_remaining }} meals to go!</strong>
+            </p>
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" style="width: {{ next_badge.progress_pct }}%;"></div>
+            </div>
+        </div>
+        {% else %}
+        <p style="text-align: center; color: var(--gray); margin-top: 16px; font-size: 1.1rem;">
+            🎉 You've earned ALL badges! You're a legend!
+        </p>
+        {% endif %}
+    </div>
+
+    {# ── Monthly Breakdown Chart ── #}
+    <div class="card" style="padding: 28px; margin-top: 24px;">
+        <h3 style="margin-bottom: 20px; font-size: 1.2rem;">📅 Monthly Meals Donated</h3>
+        <div class="chart-container">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+
+    {% else %}
+    {# ═══════════════════════════════════════════════════════════════
+    ORPHANAGE / RECIPIENT VIEW
+    ═══════════════════════════════════════════════════════════════ #}
+
+    {# ── Stats Cards ── #}
+    <div class="impact-hero-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">🍽️</div>
+            <div class="impact-hero-number" data-target="{{ total_meals }}">0</div>
+            <div class="impact-hero-label">Meals Received</div>
+        </div>
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">🤝</div>
+            <div class="impact-hero-number" data-target="{{ unique_donors }}">0</div>
+            <div class="impact-hero-label">Unique Donors</div>
+        </div>
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">❤️</div>
+            <div class="impact-hero-number">—</div>
+            <div class="impact-hero-label">Favorite: {{ favorite_donor }}</div>
+        </div>
+    </div>
+
+    {# ── Monthly Breakdown Chart ── #}
+    <div class="card" style="padding: 28px; margin-top: 24px;">
+        <h3 style="margin-bottom: 20px; font-size: 1.2rem;">📅 Monthly Meals Received</h3>
+        <div class="chart-container">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+
+    {# ── Gratitude Wall ── #}
+    <div class="card" style="padding: 28px; margin-top: 24px;">
+        <h3 style="margin-bottom: 20px; font-size: 1.2rem;">💬 Your Gratitude Wall</h3>
+        {% if feedback_left %}
+        <div class="gratitude-wall">
+            {% for fb in feedback_left %}
+            <div class="gratitude-card">
+                <div class="gratitude-header">
+                    <span class="gratitude-stars">
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= fb.rating %}⭐{% else %}☆{% endif %} {% endfor %} </span>
+                            <span class="gratitude-date">{{ fb.created_at|date:"M d, Y" }}</span>
+                </div>
+                <p class="gratitude-food">For: <strong>{{ fb.order.food_post.title }}</strong></p>
+                {% if fb.comment %}
+                <p class="gratitude-comment">"{{ fb.comment }}"</p>
+                {% endif %}
+                <p class="gratitude-donor">From: {{ fb.order.food_post.donor.username }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: var(--gray); text-align: center; padding: 20px;">
+            No feedback left yet. Leave a review after your next pickup! 📝
+        </p>
+        {% endif %}
+    </div>
+
+    {% endif %}
+
+    {# ── Links ── #}
+    <div style="text-align: center; margin-top: 32px; margin-bottom: 24px;">
+        <a href="{% url 'public_impact' %}" class="btn btn-outline" style="padding: 12px 28px; font-size: 0.95rem;">
+            🌍 View Platform Impact
+        </a>
+    </div>
+</div>
+
+{# ═══════════════════════════════════════════════════════════════════
+Chart.js + Counter Animation
+═══════════════════════════════════════════════════════════════════ #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+
+{{ monthly_labels_json|json_script:"monthly-labels" }}
+{{ monthly_values_json|json_script:"monthly-values" }}
+
+<script>
+    // ── Animated Counters ─────────────────────────────────────────
+    function animateCounters() {
+        document.querySelectorAll('.impact-hero-number').forEach(function (el) {
+            var target = parseFloat(el.getAttribute('data-target'));
+            if (isNaN(target)) return; // skip non-numeric (e.g. "—")
+            var duration = 1800;
+            var startTime = null;
+
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var progress = Math.min((timestamp - startTime) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(eased * target).toLocaleString();
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.disconnect();
+            }
+        });
+    }, { threshold: 0.3 });
+    var heroGrid = document.querySelector('.impact-hero-grid');
+    if (heroGrid) observer.observe(heroGrid);
+
+    // ── Monthly Breakdown Bar Chart ───────────────────────────────
+    var monthlyLabels = JSON.parse(document.getElementById('monthly-labels').textContent);
+    var monthlyValues = JSON.parse(document.getElementById('monthly-values').textContent);
+
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'bar',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: 'Meals',
+                data: monthlyValues,
+                backgroundColor: 'rgba(108, 92, 231, 0.7)',
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 6, font: { size: 11 } } },
+                y: { beginAtZero: true, ticks: { font: { size: 11 } } }
+            }
+        }
+    });
+</script>
+{% endblock %}

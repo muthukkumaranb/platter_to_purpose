@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Platter to Purpose{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    {# ═══ Glass Navbar ═══ #}
+    <nav class="navbar-glass">
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+            <a href="{% url 'home' %}" class="logo">
+                <img src="{% static 'images/img1.png' %}" alt="Logo">
+                Platter <span style="font-weight: 400; opacity: 0.7;">to Purpose</span>
+            </a>
+
+            <div class="nav-search" style="margin: 0 20px; flex: 1; max-width: 400px;">
+                <input type="text" placeholder="Search donations..." id="global-search"
+                    data-search-url="{% url 'food_list' %}"
+                    onkeydown="if(event.key==='Enter'){window.location=this.dataset.searchUrl+'?q='+this.value}">
+                <button
+                    onclick="const s=document.getElementById('global-search');window.location=s.dataset.searchUrl+'?q='+s.value"
+                    aria-label="Search"
+                    style="display: flex; align-items: center; justify-content: center; padding: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode"
+                    style="color: var(--text);">🌓</button>
+
+                <div class="hamburger" style="color: var(--text);">
+                    <span class="bar" style="background: var(--text);"></span>
+                    <span class="bar" style="background: var(--text);"></span>
+                    <span class="bar" style="background: var(--text);"></span>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="{% url 'food_list' %}">Browse Donations</a></li>
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li>
+                        <a href="{% url 'notification_list' %}" class="notification-bell" title="Notifications">
+                            🔔
+                            {% if unread_notification_count > 0 %}
+                            <span class="notification-badge">{{ unread_notification_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <div class="nav-avatar" title="{{ user.username }}">
+                            {{ user.username|make_list|first|upper }}{{ user.username|make_list|last|upper }}
+                        </div>
+                    </li>
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-outline"
+                                style="padding: 6px 14px; font-size: 12px; background: transparent; border-radius: 8px; cursor: pointer;">Logout</button>
+                        </form>
+                    </li>
+                    {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'signup' %}" class="btn btn-secondary"
+                            style="padding: 8px 20px; border-radius: 8px;">Sign Up</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {# ═══ Main Content ═══ #}
+    <main class="container" style="padding: 20px 20px; flex: 1; margin-top: 20px;">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="amz-message">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {# ═══ Floating Notification Button ═══ #}
+    {% if user.is_authenticated and unread_notification_count > 0 %}
+    <a href="{% url 'notification_list' %}" class="notification-float">
+        🔔 Notifications ({{ unread_notification_count }})
+    </a>
+    {% endif %}
+
+    {# ═══ Glass Footer ═══ #}
+    <footer class="footer-glass">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col" style="max-width: 300px;">
+                    <a href="{% url 'home' %}" class="logo" style="margin-bottom: 16px; display: inline-flex;">
+                        <img src="{% static 'images/img1.png' %}" alt="Logo" style="height: 24px;">
+                        <span style="color: #fff;">Platter to Purpose</span>
+                    </a>
+                    <p style="color: rgba(255,255,255,0.7); font-size: 13px; line-height: 1.6;">
+                        Bridging the gap between surplus and scarcity. We connect hotels with surplus food to orphanages
+                        in need, creating a sustainable cycle of giving.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'food_list' %}">Browse Food</a></li>
+                        <li><a href="{% url 'signup' %}">Join Us</a></li>
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="#">Success Stories</a></li>
+                        <li><a href="#">Partner Hotels</a></li>
+                        <li><a href="#">Orphanages</a></li>
+                        <li><a href="#">Impact Report</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:help@plattertopurpose.com">help@plattertopurpose.com</a></li>
+                        <li><a href="#">+91 93455 11293</a></li>
+                        <li><a href="#">Coimbatore, Tamil Nadu, India</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.5);">
+                © 2026 Platter to Purpose. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+
+</html>

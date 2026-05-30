@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 500px; margin-top: 60px;">
+    <div class="card" style="padding: 40px; text-align: center;">
+        <h2 style="margin-bottom: 24px;">Cancel Order?</h2>
+        <p style="margin-bottom: 30px; font-size: 1.1rem;">
+            Are you sure you want to withdraw your claim for <strong>{{ order.food_post.title }}</strong>?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 16px; justify-content: center;">
+                <a href="{% url 'dashboard' %}" class="btn btn-outline">No, Keep it</a>
+                <button type="submit" class="btn" style="background: var(--primary-dark);">Yes, Withdraw</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

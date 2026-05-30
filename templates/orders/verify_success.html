@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; text-align: center; margin-top: 60px;">
+    <div class="card" style="padding: 40px; border-left: 6px solid var(--success);">
+        <div style="font-size: 4rem; margin-bottom: 24px;">✅</div>
+        <h2 style="margin-bottom: 16px;">Pickup Verified!</h2>
+        <p style="margin-bottom: 24px; color: #666;">
+            The order for <strong>{{ order.food_post.title }}</strong> has been marked as COMPLETED.
+        </p>
+
+        <div style="background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 32px; text-align: left;">
+            <p><strong>Picked up by:</strong> {{ order.recipient.username }}</p>
+            <p><strong>Time:</strong> {% now "jS F Y H:i" %}</p>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="btn">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

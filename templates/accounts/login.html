@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="split-screen">
+    <div class="split-left">
+        <div style="margin-bottom: 1.5rem;">
+            <img src="{% static 'images/img1.png' %}" alt="Logo"
+                style="height: 64px; background: white; padding: 8px; border-radius: 12px;">
+        </div>
+        <h2>Welcome Back</h2>
+        <p>Continue your journey of bridging the gap between surplus and scarcity.</p>
+        <ul class="feature-list">
+            <li>Save Surplus Food</li>
+            <li>Feed Hungry Lives</li>
+            <li>Track Your Impact</li>
+        </ul>
+    </div>
+    <div class="split-right">
+        <h2 style="margin-bottom: 24px; font-size: 1.4rem; font-weight: 800;">Sign In</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                <input type="text" name="username" autofocus required id="id_username">
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <input type="password" name="password" required id="id_password">
+            </div>
+            <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 14px; margin-top: 8px;">Sign
+                In</button>
+            <p style="text-align: center; margin-top: 20px; color: var(--text); font-size: 13px;">
+                New here? <a href="{% url 'signup' %}" style="font-weight: 600;">Create an account</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}

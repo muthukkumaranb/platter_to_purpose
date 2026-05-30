@@ -1,0 +1,58 @@
+# Environment & secrets
+.env
+.env.*
+*.env
+local_settings.py
+*.key
+*.pem
+*.p12
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+*.pyd
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Logs
+*.log
+
+# Media & static (collected)
+media/
+staticfiles/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+
+# Coverage & testing
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Linting
+.ruff_cache/
+
+# Old nested project directory (migrated)
+platter_to_purpose/

@@ -1,0 +1,86 @@
+{% load static %}
+{% load food_filters %}
+
+{# ── Sort Bar ── #}
+<div class="sort-bar">
+    <div class="sort-bar-left">
+        Showing <strong>{{ filtered_count|default:"0" }}</strong> of <strong>{{ total_count|default:"0" }}</strong>
+        donation{{ total_count|pluralize }}
+    </div>
+    <div class="sort-buttons">
+        <span style="font-size: 12px; color: var(--text); margin-right: 4px;">Sort:</span>
+        <button class="sort-btn active" onclick="sortBy('newest')">Newest</button>
+        <button class="sort-btn" onclick="sortBy('expiry')">Urgent</button>
+        <button class="sort-btn" onclick="sortBy('quantity')">Quantity</button>
+    </div>
+</div>
+
+<script>
+    function sortBy(type) {
+        document.getElementById('filter-sort').value = type;
+        document.querySelectorAll('.sort-btn').forEach(function (b) { b.classList.remove('active'); });
+        event.target.classList.add('active');
+        applyFilters();
+    }
+</script>
+
+{# ── Food Card Grid ── #}
+<div class="grid">
+    {% for food in foods %}
+    <div class="food-card {% if food.is_in_priority_window %}food-card-priority{% endif %}">
+        {# Image area with pastel background - cycle through 6 colors #}
+        <div class="food-card-image food-bg-{% cycle '1' '2' '3' '4' '5' '6' %}" style="position: relative;">
+            {% if food.image %}
+            <img src="{{ food.image.url }}" alt="{{ food.title }}">
+            {% else %}
+            <span class="food-emoji">{% cycle '🍲' '🍛' '🥗' '🍰' '🍜' '🥘' %}</span>
+            {% endif %}
+
+            {# Badge Overlays #}
+            {% if food.is_in_priority_window %}
+            <span class="badge badge-priority" data-priority-ends="{{ food.priority_window_ends|date:'c' }}">
+                Priority · <span class="countdown-text">--:--</span>
+            </span>
+            {% elif food.expiry_time and food.expiry_time <= urgency_threshold %} <span class="badge badge-urgent">
+                Urgent · Expiring Soon</span>
+                {% elif not food.is_claimed %}
+                <span class="badge badge-open-all">Open to All</span>
+                {% endif %}
+        </div>
+
+        {# Card Body #}
+        <div class="food-card-body">
+            <div class="food-card-title-row">
+                <a href="{% url 'food_detail' food.pk %}" class="food-card-title" style="color: var(--dark);">
+                    {{ food.title }}
+                </a>
+                <span class="food-card-servings">{{ food.quantity }} meals</span>
+            </div>
+
+            <p class="food-card-desc">{{ food.description|truncatechars:90 }}</p>
+
+            <div class="food-card-meta">📍 {{ food.location }}</div>
+            <div class="food-card-meta">⏰ Expires at {{ food.expiry_time|date:"g:i A" }} today</div>
+
+            {# Footer: Hotel avatar + rating + Claim button #}
+            <div class="food-card-footer">
+                <div class="food-card-hotel">
+                    <span class="food-card-hotel-avatar">{{ food.donor.username|make_list|first|upper }}</span>
+                    {{ food.donor.username }}
+                </div>
+                <div class="food-card-rating" style="color: #F4A261;" title="{{ food.donor.average_rating }} / 5">{{
+                    food.donor.average_rating|to_stars }}</div>
+                <a href="{% url 'food_detail' food.pk %}" class="btn-claim">Claim →</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 48px 0;">
+        <div style="font-size: 3rem; margin-bottom: 12px; opacity: 0.4;">🔍</div>
+        <h3 style="color: var(--dark); font-size: 1.1rem; margin-bottom: 6px;">No donations found</h3>
+        <p style="color: var(--text); font-size: 13px; margin-bottom: 16px;">Try adjusting your filters or check back
+            soon.</p>
+        <button type="button" class="btn btn-outline" onclick="clearFilters()">Clear All Filters</button>
+    </div>
+    {% endfor %}
+</div>

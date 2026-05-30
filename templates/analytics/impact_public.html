@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Impact — Platter to Purpose{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+
+    {# ─── Page Header ──────────────────────────────────────────── #}
+    <div style="text-align: center; margin-bottom: 48px;">
+        <h1 style="font-size: 2.8rem; margin-bottom: 12px;">🌍 Our Impact</h1>
+        <p style="color: var(--gray); font-size: 1.15rem; max-width: 550px; margin: 0 auto;">
+            Together, we're reducing food waste and feeding communities. Here's what our platform has achieved.
+        </p>
+    </div>
+
+    {# ═══════════════════════════════════════════════════════════════
+    HERO COUNTERS — big animated numbers
+    ═══════════════════════════════════════════════════════════════ #}
+    <div class="impact-hero-grid">
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">🍽️</div>
+            <div class="impact-hero-number" data-target="{{ total_meals }}">0</div>
+            <div class="impact-hero-label">Meals Saved</div>
+        </div>
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">🏨</div>
+            <div class="impact-hero-number" data-target="{{ active_donors }}">0</div>
+            <div class="impact-hero-label">Active Donors</div>
+        </div>
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">🏠</div>
+            <div class="impact-hero-number" data-target="{{ orphanages_served }}">0</div>
+            <div class="impact-hero-label">Orphanages Served</div>
+        </div>
+        <div class="impact-hero-card">
+            <div class="impact-hero-icon">♻️</div>
+            <div class="impact-hero-number" data-target="{{ co2_prevented }}">0</div>
+            <div class="impact-hero-label">kg CO₂ Prevented</div>
+        </div>
+    </div>
+
+    {# ═══════════════════════════════════════════════════════════════
+    CHARTS — Chart.js line + bar
+    ═══════════════════════════════════════════════════════════════ #}
+    <div class="impact-charts-grid">
+        {# Daily Donations Line Chart #}
+        <div class="card" style="padding: 28px;">
+            <h3 style="margin-bottom: 20px; font-size: 1.2rem;">📈 Donations — Last 30 Days</h3>
+            <div class="chart-container">
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+
+        {# Top Donors Bar Chart #}
+        <div class="card" style="padding: 28px;">
+            <h3 style="margin-bottom: 20px; font-size: 1.2rem;">🏆 Top Donors by Meals</h3>
+            <div class="chart-container">
+                <canvas id="donorChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {# ═══════════════════════════════════════════════════════════════
+    LEADERBOARDS
+    ═══════════════════════════════════════════════════════════════ #}
+    <div class="impact-charts-grid" style="margin-top: 32px;">
+        {# Top Hotels #}
+        <div class="card" style="padding: 28px;">
+            <h3 style="margin-bottom: 20px; font-size: 1.2rem;">🏨 Top Hotels</h3>
+            {% if top_donors %}
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Hotel</th>
+                        <th>Meals</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donor in top_donors %}
+                    <tr>
+                        <td>
+                            {% if forloop.counter == 1 %}🥇
+                            {% elif forloop.counter == 2 %}🥈
+                            {% elif forloop.counter == 3 %}🥉
+                            {% else %}#{{ forloop.counter }}
+                            {% endif %}
+                        </td>
+                        <td>{{ donor.food_post__donor__username }}</td>
+                        <td><strong>{{ donor.total_meals }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: var(--gray); text-align: center; padding: 20px;">No donations yet. Be the first! 🚀</p>
+            {% endif %}
+        </div>
+
+        {# Top Orphanages #}
+        <div class="card" style="padding: 28px;">
+            <h3 style="margin-bottom: 20px; font-size: 1.2rem;">🏠 Top Orphanages</h3>
+            {% if top_recipients %}
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Orphanage</th>
+                        <th>Meals</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for recip in top_recipients %}
+                    <tr>
+                        <td>
+                            {% if forloop.counter == 1 %}🥇
+                            {% elif forloop.counter == 2 %}🥈
+                            {% elif forloop.counter == 3 %}🥉
+                            {% else %}#{{ forloop.counter }}
+                            {% endif %}
+                        </td>
+                        <td>{{ recip.recipient__username }}</td>
+                        <td><strong>{{ recip.total_meals }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: var(--gray); text-align: center; padding: 20px;">No recipients yet. Spread the word! 📢</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ═══════════════════════════════════════════════════════════════
+    LIVE FEED — last 10 completed donations
+    ═══════════════════════════════════════════════════════════════ #}
+    <div class="card" style="padding: 28px; margin-top: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="font-size: 1.2rem; margin: 0;">🔴 Live Feed</h3>
+            <span class="live-dot">● Live</span>
+        </div>
+        <div id="live-feed-container">
+            {% for item in live_feed %}
+            <div class="live-feed-item">
+                <span class="live-feed-icon">🍲</span>
+                <span class="live-feed-text">
+                    A hotel in <strong>{{ item.location }}</strong> donated
+                    <strong>{{ item.meals }}</strong> meals — {{ item.time_display }}
+                </span>
+            </div>
+            {% empty %}
+            <p style="color: var(--gray); text-align: center; padding: 20px;">
+                No completed donations yet. The first one is always special! ✨
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# ── Call to Action ── #}
+    <div style="text-align: center; margin-top: 48px; margin-bottom: 32px;">
+        {% if user.is_authenticated %}
+        <a href="{% url 'personal_impact' %}" class="btn btn-secondary" style="padding: 14px 36px; font-size: 1rem;">
+            📊 View Your Personal Impact
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-secondary" style="padding: 14px 36px; font-size: 1rem;">
+            🚀 Join Us — Start Making Impact
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{# ═══════════════════════════════════════════════════════════════════
+Chart.js CDN + Chart Initialization
+═══════════════════════════════════════════════════════════════════ #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+
+{# Pass data from Django to JS safely #}
+{{ chart_labels_json|json_script:"chart-labels" }}
+{{ chart_values_json|json_script:"chart-values" }}
+{{ donor_labels_json|json_script:"donor-labels" }}
+{{ donor_values_json|json_script:"donor-values" }}
+
+<script>
+    // ── Animated Counter ──────────────────────────────────────────
+    function animateCounters() {
+        document.querySelectorAll('.impact-hero-number').forEach(function (el) {
+            var target = parseFloat(el.getAttribute('data-target')) || 0;
+            var duration = 2000; // 2 seconds
+            var start = 0;
+            var startTime = null;
+
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var progress = Math.min((timestamp - startTime) / duration, 1);
+                // Ease-out cubic for smooth deceleration
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var current = Math.round(eased * target);
+                el.textContent = current.toLocaleString();
+                if (progress < 1) requestAnimationFrame(step);
+            }
+
+            requestAnimationFrame(step);
+        });
+    }
+
+    // Run counter animation when elements are in viewport
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.disconnect();
+            }
+        });
+    }, { threshold: 0.3 });
+    var heroGrid = document.querySelector('.impact-hero-grid');
+    if (heroGrid) observer.observe(heroGrid);
+
+    // ── Daily Donations Line Chart ────────────────────────────────
+    var chartLabels = JSON.parse(document.getElementById('chart-labels').textContent);
+    var chartValues = JSON.parse(document.getElementById('chart-values').textContent);
+
+    new Chart(document.getElementById('dailyChart'), {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Meals Donated',
+                data: chartValues,
+                borderColor: '#6c5ce7',
+                backgroundColor: 'rgba(108, 92, 231, 0.1)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: '#6c5ce7',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 11 } } },
+                y: { beginAtZero: true, ticks: { font: { size: 11 } } }
+            }
+        }
+    });
+
+    // ── Top Donors Bar Chart ──────────────────────────────────────
+    var donorLabels = JSON.parse(document.getElementById('donor-labels').textContent);
+    var donorValues = JSON.parse(document.getElementById('donor-values').textContent);
+
+    new Chart(document.getElementById('donorChart'), {
+        type: 'bar',
+        data: {
+            labels: donorLabels,
+            datasets: [{
+                label: 'Meals Donated',
+                data: donorValues,
+                backgroundColor: [
+                    'rgba(108, 92, 231, 0.8)',
+                    'rgba(0, 206, 201, 0.8)',
+                    'rgba(253, 203, 110, 0.8)',
+                    'rgba(225, 112, 85, 0.8)',
+                    'rgba(129, 236, 236, 0.8)',
+                ],
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { font: { size: 11 } } },
+                y: { ticks: { font: { size: 12 } } }
+            }
+        }
+    });
+
+    // ── Live Feed Auto-Refresh (every 60 seconds) ─────────────────
+    setInterval(function () {
+        fetch('{% url "live_feed_api" %}')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var container = document.getElementById('live-feed-container');
+                if (!data.feed || data.feed.length === 0) return;
+                var html = '';
+                data.feed.forEach(function (item) {
+                    html += '<div class="live-feed-item">';
+                    html += '<span class="live-feed-icon">🍲</span>';
+                    html += '<span class="live-feed-text">';
+                    html += 'A hotel in <strong>' + item.location + '</strong> donated ';
+                    html += '<strong>' + item.meals + '</strong> meals — ' + item.time_display;
+                    html += '</span></div>';
+                });
+                container.innerHTML = html;
+            })
+            .catch(function (err) { console.error('Live feed error:', err); });
+    }, 60000);
+</script>
+{% endblock %}

@@ -21,7 +21,7 @@ Platter to Purpose is a community-driven surplus food rescue platform designed t
 The platform implements these features:
 
 | Feature | Description |
-| :--- | :--- |
+
 | **Monorepo apps structure** | Unified code architecture grouped inside the `apps/` folder namespace. |
 | **Service-Selector design** | Separation of business logic (`services.py`) and read-heavy queries (`selectors.py`). |
 | **Celery background queue** | Asynchronous email alerts, verification OTPs, and periodic tasks loops. |

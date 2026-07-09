@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.core.cache import cache
 from django.db import models
 from django.utils import timezone
 
@@ -21,6 +22,12 @@ class FoodPostQuerySet(SoftDeleteQuerySet):
 class FoodPostManager(SoftDeleteManager):
     def get_queryset(self):
         return FoodPostQuerySet(self.model, using=self._db).active()
+
+    def available(self):
+        return self.get_queryset().available()
+
+    def by_donor(self, user):
+        return self.get_queryset().by_donor(user)
 
 
 class FoodPost(SoftDeleteMixin, models.Model):
@@ -62,6 +69,7 @@ class FoodPost(SoftDeleteMixin, models.Model):
                     minutes=window_minutes
                 )
         super().save(*args, **kwargs)
+        cache.delete("available_food_ids")
 
     @property
     def is_in_priority_window(self):

@@ -4,7 +4,7 @@ from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
 
-from apps.food.exceptions import FoodPostReservedException
+from apps.food.exceptions import FoodPostNotFoundException, FoodPostReservedException
 from apps.food.models import FoodPost
 from apps.orders.constants import OrderStatus
 from apps.orders.exceptions import (
@@ -25,8 +25,8 @@ def claim_food(user, food_id) -> Order:
     with transaction.atomic():
         try:
             locked_food = FoodPost.objects.select_for_update().get(pk=food_id)
-        except FoodPost.DoesNotExist:
-            raise FoodPost.DoesNotExist("This food post no longer exists.")
+        except FoodPost.DoesNotExist as exc:
+            raise FoodPostNotFoundException() from exc
 
         if locked_food.is_claimed:
             raise FoodAlreadyClaimedException()

@@ -1,0 +1,3 @@
+OK: accounts/signup.html
+OK: dashboard/hotel_dashboard.html
+OK: dashboard/orphanage_dashboard.html

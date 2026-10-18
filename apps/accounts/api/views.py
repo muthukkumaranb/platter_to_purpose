@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
@@ -15,6 +17,7 @@ from apps.accounts.tasks import send_otp_task
 from apps.accounts.utils import generate_otp
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class UserRegistrationView(APIView):
@@ -33,7 +36,23 @@ class UserRegistrationView(APIView):
 
             # Send OTP asynchronously via Celery
             if user.email:
-                send_otp_task.delay(user.email, otp)
+                try:
+                    send_otp_task.delay(user.email, otp)
+                except Exception:
+                    logger.exception(
+                        "Unable to send signup OTP to %s", user.email
+                    )
+                    return Response(
+                        {
+                            "message": (
+                                "Registration succeeded, but we couldn't send "
+                                "the verification email right now. Please try "
+                                "again later."
+                            ),
+                            "user": UserSerializer(user).data,
+                        },
+                        status=status.HTTP_201_CREATED,
+                    )
 
             return Response(
                 {

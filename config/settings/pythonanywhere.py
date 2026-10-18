@@ -8,6 +8,7 @@ of which are available on the free PythonAnywhere tier.
 import os
 
 from .base import *  # noqa: F401, F403
+from .base import BASE_DIR
 
 DEBUG = False
 DEMO_MODE = True
@@ -39,6 +40,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+if not EMAIL_HOST_USER:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 CELERY_BROKER_URL = "memory://"
 CELERY_TASK_ALWAYS_EAGER = True

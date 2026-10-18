@@ -3,6 +3,7 @@
 Live demo: https://muthukkumaranb.pythonanywhere.com
 No sign-up or OTP needed: open the login page and click "Try as Hotel" or "Try as Orphanage".
 Note: hosted on a free tier, so the first load may take a few seconds.
+Registration uses email OTP verification. The public demo skips it with one-click demo accounts.
 
 Connecting Hotels with Surplus Food to Orphanages in Need
 

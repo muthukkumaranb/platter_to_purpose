@@ -2,9 +2,11 @@
 View tests for the accounts app.
 """
 
+from unittest.mock import patch
+
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from unittest.mock import patch
+from rest_framework.test import APIClient
 
 from apps.accounts.constants import UserRole
 from apps.accounts.models import User
@@ -88,6 +90,69 @@ class AccountsViewTests(TestCase):
         self.assertFalse(user.is_active)
         send_email_otp.assert_called_once()
         self.assertEqual(send_email_otp.call_args.args[0], "pending@example.com")
+
+    @override_settings(
+        DEMO_MODE=True,
+        EMAIL_HOST_USER="",
+        EMAIL_HOST_PASSWORD="",
+        EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend",
+    )
+    def test_signup_notice_is_shown_without_demo_email_credentials(self):
+        response = self.client.get(reverse("signup"))
+
+        self.assertContains(
+            response,
+            "Email sign-up is disabled in this public demo.",
+        )
+        self.assertContains(response, "Please use the")
+        self.assertContains(response, "disabled")
+
+    @override_settings(
+        DEMO_MODE=True,
+        EMAIL_HOST_USER="",
+        EMAIL_HOST_PASSWORD="",
+        EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend",
+    )
+    @patch("apps.accounts.views.send_email_otp")
+    def test_signup_without_email_credentials_does_not_return_500(
+        self, send_email_otp
+    ):
+        send_email_otp.side_effect = RuntimeError("mail unavailable")
+
+        response = self.client.post(
+            reverse("signup"),
+            {
+                "username": "pythonanywhere-user",
+                "email": "pythonanywhere@example.com",
+                "password1": "valid-password-123",
+                "password2": "valid-password-123",
+                "role": UserRole.HOTEL,
+                "phone": "",
+                "address": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("verify_otp"))
+
+    @patch("apps.accounts.api.views.send_otp_task.delay")
+    def test_api_registration_mail_failure_does_not_return_500(self, delay):
+        delay.side_effect = RuntimeError("mail unavailable")
+        response = APIClient().post(
+            reverse("api_register"),
+            {
+                "username": "api-mail-failure-user",
+                "email": "api-failure@example.com",
+                "password": "valid-password-123",
+                "role": UserRole.HOTEL,
+                "phone": "",
+                "address": "",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("couldn't send", response.data["message"])
 
     def test_inactive_normal_user_cannot_log_in_before_otp(self):
         user = User.objects.create_user(

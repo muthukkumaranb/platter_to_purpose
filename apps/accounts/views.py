@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
@@ -10,6 +12,8 @@ from django.views.decorators.http import require_POST
 from .forms import CustomUserCreationForm
 from .models import User
 from .utils import generate_otp, send_email_otp
+
+logger = logging.getLogger(__name__)
 
 
 class LoginView(auth_views.LoginView):
@@ -40,15 +44,32 @@ def signup(request):
             request.session["signup_user_id"] = user.pk
             request.session["signup_otp"] = otp
 
-            send_email_otp(email, otp)
-
-            messages.info(
-                request, f"OTP sent to {email} (check console for demo)"
-            )
+            try:
+                send_email_otp(email, otp)
+            except Exception:
+                logger.exception("Unable to send signup OTP to %s", email)
+                messages.error(
+                    request,
+                    "We couldn't send the verification email right now. "
+                    "Please try again later.",
+                )
+            else:
+                messages.info(
+                    request, f"OTP sent to {email} (check console for demo)"
+                )
             return redirect("verify_otp")
     else:
         form = CustomUserCreationForm()
-    return render(request, "accounts/signup.html", {"form": form})
+    return render(
+        request,
+        "accounts/signup.html",
+        {
+            "form": form,
+            "email_signup_disabled": (
+                settings.DEMO_MODE and not settings.EMAIL_HOST_USER
+            ),
+        },
+    )
 
 
 def verify_otp(request):

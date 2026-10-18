@@ -18,6 +18,12 @@
     </div>
     <div class="split-right">
         <h2 style="margin-bottom: 24px; font-size: 1.4rem; font-weight: 800;">Create Account</h2>
+        {% if email_signup_disabled %}
+        <div class="amz-message" role="status" style="margin-bottom: 16px;">
+            Email sign-up is disabled in this public demo. Please use the
+            'Try as Hotel / Try as Orphanage' buttons on the login page.
+        </div>
+        {% endif %}
         <form method="post">
             {% csrf_token %}
             <label style="margin-bottom: 8px; display: block; font-weight: 700; font-size: 13px;">I am a...</label>
@@ -52,7 +58,8 @@
             {% endif %}
             {% endfor %}
             <button type="submit" class="btn"
-                style="width: 100%; padding: 12px; font-size: 14px; margin-top: 8px;">Create Account</button>
+                style="width: 100%; padding: 12px; font-size: 14px; margin-top: 8px;"
+                {% if email_signup_disabled %}disabled{% endif %}>Create Account</button>
             <p style="text-align: center; margin-top: 20px; color: var(--text); font-size: 13px;">
                 Already have an account? <a href="{% url 'login' %}" style="font-weight: 600;">Sign In</a>
             </p>

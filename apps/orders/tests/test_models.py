@@ -40,6 +40,11 @@ class OrderTestCase(TestCase):
         self.food.refresh_from_db()
         self.assertTrue(self.food.is_claimed)
 
+    def test_orders_can_be_filtered_by_recipient(self):
+        order = Order.objects.create(recipient=self.recipient, food_post=self.food)
+
+        self.assertEqual(list(Order.objects.for_recipient(self.recipient)), [order])
+
     def test_secret_token_generation(self):
         """Test that a UUID secret token is generated automatically."""
         order = Order.objects.create(recipient=self.recipient, food_post=self.food)

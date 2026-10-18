@@ -24,6 +24,9 @@ class OrderManager(SoftDeleteManager):
     def get_queryset(self):
         return OrderQuerySet(self.model, using=self._db).active()
 
+    def for_recipient(self, user):
+        return self.get_queryset().for_recipient(user)
+
 
 class Order(SoftDeleteMixin, models.Model):
     Status = OrderStatus

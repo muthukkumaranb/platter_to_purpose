@@ -61,8 +61,7 @@
                     <span class="food-card-hotel-avatar">{{ food.donor.username|make_list|first|upper }}</span>
                     {{ food.donor.username }}
                 </div>
-                <div class="food-card-rating" style="color: #F4A261;" title="{{ food.donor.average_rating }} / 5">{{
-                    food.donor.average_rating|to_stars }}</div>
+                <div class="food-card-rating" style="color: #F4A261;" title="{{ food.donor.average_rating }} / 5">{{ food.donor.average_rating|to_stars }}</div>
                 <a href="{% url 'food_detail' food.pk %}" class="btn-claim">Claim →</a>
             </div>
         </div>

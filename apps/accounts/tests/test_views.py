@@ -43,6 +43,15 @@ class AccountsViewTests(TestCase):
         response = self.client.get(reverse("login"))
         self.assertContains(response, "Try as Hotel")
         self.assertContains(response, "Try as Orphanage")
+        self.assertContains(response, 'action="/accounts/demo-login/HOTEL/"')
+        self.assertContains(response, 'action="/accounts/demo-login/ORPHANAGE/"')
+
+    @override_settings(DEMO_MODE=True)
+    def test_global_footer_does_not_show_contact_information(self):
+        response = self.client.get(reverse("login"))
+        self.assertNotContains(response, "help@plattertopurpose.com")
+        self.assertNotContains(response, "+91 93455 11293")
+        self.assertNotContains(response, "Coimbatore, Tamil Nadu, India")
 
     @override_settings(DEMO_MODE=True)
     def test_demo_login_works_for_each_role(self):

@@ -14,6 +14,7 @@ class User(AbstractUser):
     # Add any common fields like phone, address, etc. if needed
     phone = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
+    is_demo = models.BooleanField(default=False, db_index=True)
 
     def is_hotel(self):
         return self.role == self.Role.HOTEL

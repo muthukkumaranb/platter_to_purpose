@@ -34,6 +34,22 @@
                 New here? <a href="{% url 'signup' %}" style="font-weight: 600;">Create an account</a>
             </p>
         </form>
+        {% if demo_mode %}
+        <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <h3 style="font-size: 1rem; margin-bottom: 8px;">Try the live demo</h3>
+            <p style="color: var(--text); font-size: 12px; margin-bottom: 12px;">
+                Demo accounts share sample data and reset periodically.
+            </p>
+            {% for role_value, role_label in demo_roles %}
+            <form method="post" action="{% url 'demo_login' role_value %}" style="margin-bottom: 8px;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary" style="width: 100%; padding: 9px; font-size: 13px;">
+                    Try as {{ role_label }}
+                </button>
+            </form>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

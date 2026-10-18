@@ -32,12 +32,12 @@ class UserRegistrationView(APIView):
             cache.set(f"otp_{user.username}", otp, timeout=600)  # 10 minutes TTL
 
             # Send OTP asynchronously via Celery
-            if user.phone:
-                send_otp_task.delay(user.phone, otp)
+            if user.email:
+                send_otp_task.delay(user.email, otp)
 
             return Response(
                 {
-                    "message": "User registered successfully. Please verify OTP sent to your phone.",
+                    "message": "User registered successfully. Please verify OTP sent to your email.",
                     "user": UserSerializer(user).data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -61,7 +61,7 @@ class VerifyOtpView(APIView):
                 user.save()
                 cache.delete(f"otp_{username}")  # Clear cache
                 return Response(
-                    {"message": "Phone verification successful. You can now log in."},
+                    {"message": "Email verification successful. You can now log in."},
                     status=status.HTTP_200_OK,
                 )
             return Response(

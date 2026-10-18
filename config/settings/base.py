@@ -130,6 +130,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Auth
 
 AUTH_USER_MODEL = "accounts.User"
+DEMO_MODE = False
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "home"
 

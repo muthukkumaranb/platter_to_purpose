@@ -1,5 +1,47 @@
 # Platter to Purpose
+
+Live demo: https://muthukkumaranb.pythonanywhere.com
+No sign-up or OTP needed: open the login page and click "Try as Hotel" or "Try as Orphanage".
+Note: hosted on a free tier, so the first load may take a few seconds.
+
 Connecting Hotels with Surplus Food to Orphanages in Need
+
+## Live Demo
+
+### Demo accounts
+
+The application currently has two RBAC roles:
+
+| Role | What it can do |
+|---|---|
+| Hotel (donor) | Create and manage surplus food posts and verify pickups. |
+| Orphanage (recipient) | Browse available food, claim donations, manage pickups, and submit feedback. |
+
+The demo buttons use these real roles; no manager role exists in the current RBAC model.
+
+## Run locally
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements/development.txt
+python manage.py migrate
+python manage.py seed_demo
+python manage.py runserver
+```
+
+## Deploying updates on PythonAnywhere
+
+```bash
+cd ~/platter_to_purpose && git pull
+workon myenv
+export DJANGO_SETTINGS_MODULE=config.settings.pythonanywhere
+python manage.py migrate
+python manage.py seed_demo
+python manage.py collectstatic --noinput
+```
+
+Then press **Reload** on the Web tab.
 
 [![CI Build Status](https://img.shields.io/github/actions/workflow/status/example/platter-to-purpose/ci.yml?branch=main)](https://github.com/example/platter-to-purpose/actions)
 [![Coverage Status](https://img.shields.io/codecov/c/github/example/platter-to-purpose)](https://codecov.io/gh/example/platter-to-purpose)

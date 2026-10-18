@@ -34,3 +34,32 @@ class FoodViewTests(TestCase):
         self.assertContains(response, "Formatting Test Meal")
         self.assertNotContains(response, "{{ food.title }}")
         self.assertNotContains(response, '{{ food.expiry_time|date:"g:i A" }}')
+
+    def test_claimed_tab_shows_claimed_food_only(self):
+        donor = User.objects.create(
+            username="tab-hotel",
+            role=User.Role.HOTEL,
+        )
+        claimed_food = FoodPost.objects.create(
+            donor=donor,
+            title="Claimed tab meal",
+            description="Already claimed.",
+            quantity=8,
+            location="Test Kitchen",
+            is_claimed=True,
+        )
+        available_food = FoodPost.objects.create(
+            donor=donor,
+            title="Available tab meal",
+            description="Still available.",
+            quantity=8,
+            location="Test Kitchen",
+            priority_window_ends=timezone.now() - timedelta(minutes=1),
+        )
+
+        response = self.client.get(
+            reverse("food_list"), {"filter": "claimed"}
+        )
+
+        self.assertContains(response, claimed_food.title)
+        self.assertNotContains(response, available_food.title)

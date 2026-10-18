@@ -6,10 +6,10 @@
 <div class="fade-in">
     {# ── Tabs ── #}
     <div class="tab-nav">
-        <a href="{% url 'food_list' %}" class="active">Available Now</a>
-        <a href="{% url 'food_list' %}?filter=priority">Priority Window <span class="tab-badge">{{ priority_count|default:"" }}</span></a>
-        <a href="{% url 'food_list' %}?filter=claimed">Claimed</a>
-        <a href="{% url 'food_list' %}?filter=expired">Expired</a>
+        <a href="{% url 'food_list' %}" class="{% if active_filter == 'available' %}active{% endif %}">Available Now</a>
+        <a href="{% url 'food_list' %}?filter=priority" class="{% if active_filter == 'priority' %}active{% endif %}">Priority Window <span class="tab-badge">{{ priority_count|default:"" }}</span></a>
+        <a href="{% url 'food_list' %}?filter=claimed" class="{% if active_filter == 'claimed' %}active{% endif %}">Claimed</a>
+        <a href="{% url 'food_list' %}?filter=expired" class="{% if active_filter == 'expired' %}active{% endif %}">Expired</a>
     </div>
 
     {# ── Dashboard Layout: Sidebar + Main ── #}
@@ -166,6 +166,8 @@
         var loc = document.getElementById('filter-location').value.trim();
         var minQty = document.getElementById('filter-qty').value.trim();
         var sort = document.getElementById('filter-sort').value;
+        var activeFilter = '{{ active_filter }}';
+        if (activeFilter !== 'available') params.set('filter', activeFilter);
         if (q) params.set('q', q);
         if (loc) params.set('location', loc);
         if (minQty) params.set('min_qty', minQty);

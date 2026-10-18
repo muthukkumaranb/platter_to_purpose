@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from apps.analytics.selectors import get_user_stats
 from apps.food.forms import FoodPostForm
-from apps.food.selectors import get_available_food, get_food_by_id
+from apps.food.selectors import get_available_food, get_food_by_id, get_food_by_tab
 from apps.food.services import post_food_donation
 
 
@@ -20,10 +20,17 @@ def food_list(request):
     location = request.GET.get("location", "").strip()
     min_qty = request.GET.get("min_qty", "").strip()
     sort = request.GET.get("sort", "newest").strip()
+    active_filter = request.GET.get("filter", "available").strip()
+    if active_filter not in {"available", "priority", "claimed", "expired"}:
+        active_filter = "available"
 
-    # Call Selector layer
-    foods = get_available_food(
-        user=request.user, q=query, location=location, min_qty=min_qty, sort=sort
+    foods = get_food_by_tab(
+        user=request.user,
+        tab=active_filter,
+        q=query,
+        location=location,
+        min_qty=min_qty,
+        sort=sort,
     )
 
     total_count = foods.count()
@@ -108,6 +115,7 @@ def food_list(request):
         "sort_newest": sort == "newest",
         "sort_expiry": sort == "expiry",
         "sort_quantity": sort == "quantity",
+        "active_filter": active_filter,
     }
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":

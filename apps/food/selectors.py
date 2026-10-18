@@ -61,6 +61,55 @@ def get_available_food(
     return foods
 
 
+def get_food_by_tab(
+    user=None,
+    tab: str = "available",
+    q: str = None,
+    location: str = None,
+    min_qty: int = None,
+    sort: str = "newest",
+) -> QuerySet[FoodPost]:
+    """Retrieve food posts for one of the public listing tabs."""
+    now = timezone.now()
+    foods = FoodPost.objects.all().select_related("donor")
+
+    if tab == "claimed":
+        foods = foods.filter(is_claimed=True)
+    elif tab == "expired":
+        foods = foods.filter(is_claimed=False, expiry_time__lte=now)
+    else:
+        foods = foods.filter(
+            is_claimed=False,
+        ).filter(Q(expiry_time__isnull=True) | Q(expiry_time__gt=now))
+        if tab == "priority":
+            foods = foods.filter(priority_window_ends__gt=now)
+        else:
+            is_orphanage = user.is_authenticated and user.is_orphanage() if user else False
+            if not is_orphanage:
+                foods = foods.filter(
+                    Q(priority_window_ends__isnull=True)
+                    | Q(priority_window_ends__lte=now)
+                )
+
+    if q:
+        foods = foods.filter(Q(title__icontains=q) | Q(description__icontains=q))
+    if location:
+        foods = foods.filter(location__icontains=location)
+    if min_qty:
+        try:
+            min_qty_int = int(min_qty)
+            if min_qty_int > 0:
+                foods = foods.filter(quantity__gte=min_qty_int)
+        except ValueError:
+            pass
+
+    if sort == "expiry":
+        return foods.order_by("expiry_time")
+    if sort == "quantity":
+        return foods.order_by("-quantity")
+    return foods.order_by("-created_at")
+
+
 def get_food_by_id(pk: int) -> FoodPost:
     return get_object_or_404(FoodPost, pk=pk)
 
